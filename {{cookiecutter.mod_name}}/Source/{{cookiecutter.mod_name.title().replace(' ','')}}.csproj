@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Target .NET Framework version -->
+    <TargetFramework>net472</TargetFramework>
+
+    <!-- Assembly settings -->
+    <OutputType>Library</OutputType>
+    <RootNamespace>{{cookiecutter.mod_name.title().replace(' ','')}}</RootNamespace>
+    <AssemblyName>{{cookiecutter.mod_name.title().replace(' ','')}}</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- Custom paths -->
+    <GameInstallPath Condition="'$(GameInstallPath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\RimWorld</GameInstallPath>
+    <!-- Output path for built assemblies -->
+    <DisableTargetFrameworkSubfolder>true</DisableTargetFrameworkSubfolder>
+    <OutputPath>..\Common\Assemblies\</OutputPath>
+    <OutDir>..\Common\Assemblies\</OutDir>
+  </PropertyGroup>
+
+  <!-- Configuration for Release build  Compiles and copies files to the RimWorld mod directory -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>..\Common\Assemblies\</OutputPath>
+    <RimWorldModPath>$(GameInstallPath)\Mods\$(RootNamespace)\</RimWorldModPath>
+  </PropertyGroup>
+
+  <Target Name="CopyCommonToRimWorld" AfterTargets="Build" Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <ItemGroup>
+      <AboutFiles Include="..\About\**\*" />
+      <CommonFiles Include="..\Common\**\*" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(RimWorldModPath)\About" Condition="!Exists('$(RimWorldModPath)\About')" />
+
+    <Copy
+      SourceFiles="@(AboutFiles)"
+      DestinationFiles="@(AboutFiles->'$(RimWorldModPath)About\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+
+    <Copy
+      SourceFiles="@(CommonFiles)"
+      DestinationFiles="@(CommonFiles->'$(RimWorldModPath)%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+  </Target>
+
+  <ItemGroup>
+    <!-- Reference Assemblies needed for SDK-style compatibility with .NET Framework -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Game and Unity references -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameInstallPath)\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameInstallPath)\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Additional data files -->
+    <None Include="..\About\**" />
+    <None Include="..\Common\Defs\**" />
+    <None Include="..\Common\Languages\**" />
+    <None Include="..\Common\Patches\**" />
+  </ItemGroup>
+
+
+
+
+
+</Project>
